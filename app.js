@@ -1,63 +1,69 @@
 const { useState, useEffect, useRef } = React;
 
 function App() {
+  const canvasRef = useRef(null);
   const chartRef = useRef(null);
-  const chartInstance = useRef(null);
 
+  const [loading, setLoading] = useState(true);
   const [price, setPrice] = useState("-");
   const [change, setChange] = useState("-");
-  const [range, setRange] = useState(1); // days
+  const [days, setDays] = useState(1);
 
-  // ======================
-  // FETCH DATA
-  // ======================
-  async function loadChart(days) {
-    const url = `
-https://api.coingecko.com/api/v3/coins/ethereum/market_chart
-?vs_currency=usd&days=${days}&interval=hourly`;
+  // =========================
+  // FETCH + RENDER CHART
+  // =========================
+  async function loadData(range) {
+    setLoading(true);
+
+    const url =
+      `https://api.coingecko.com/api/v3/coins/ethereum/market_chart` +
+      `?vs_currency=usd&days=${range}&interval=hourly`;
 
     const res = await fetch(url);
     const data = await res.json();
 
     const prices = data.prices.map(p => p[1]);
     const labels = data.prices.map(p =>
-      new Date(p[0]).toLocaleTimeString()
+      new Date(p[0]).toLocaleString()
     );
 
     const first = prices[0];
     const last = prices[prices.length - 1];
-    const changePct = (((last - first) / first) * 100).toFixed(2);
 
     setPrice(`$${last.toFixed(2)}`);
-    setChange(changePct);
+    setChange((((last - first) / first) * 100).toFixed(2));
 
-    drawChart(labels, prices);
+    renderChart(labels, prices);
+    setLoading(false);
   }
 
-  // ======================
-  // DRAW CHART
-  // ======================
-  function drawChart(labels, prices) {
-    if (chartInstance.current) {
-      chartInstance.current.destroy();
+  // =========================
+  // CHART RENDER (SAFE)
+  // =========================
+  function renderChart(labels, prices) {
+    if (!canvasRef.current) return;
+
+    if (chartRef.current) {
+      chartRef.current.destroy();
     }
 
-    chartInstance.current = new Chart(chartRef.current, {
+    chartRef.current = new Chart(canvasRef.current, {
       type: "line",
       data: {
         labels,
         datasets: [{
           data: prices,
           borderColor: "#ef4444",
+          backgroundColor: "rgba(239,68,68,0.12)",
           borderWidth: 2,
-          pointRadius: 0,
           tension: 0.35,
-          fill: true,
-          backgroundColor: "rgba(239,68,68,0.1)"
+          pointRadius: 0,
+          fill: true
         }]
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
           legend: { display: false }
         },
@@ -72,13 +78,16 @@ https://api.coingecko.com/api/v3/coins/ethereum/market_chart
     });
   }
 
+  // =========================
+  // INIT
+  // =========================
   useEffect(() => {
-    loadChart(range);
-  }, [range]);
+    loadData(days);
+  }, [days]);
 
-  // ======================
+  // =========================
   // UI
-  // ======================
+  // =========================
   return (
     <div style={styles.page}>
       <div style={styles.header}>
@@ -86,7 +95,7 @@ https://api.coingecko.com/api/v3/coins/ethereum/market_chart
         <div>
           <div style={styles.price}>{price}</div>
           <div style={{
-            color: change > 0 ? "#22c55e" : "#ef4444"
+            color: change >= 0 ? "#22c55e" : "#ef4444"
           }}>
             {change}% (24h)
           </div>
@@ -94,44 +103,41 @@ https://api.coingecko.com/api/v3/coins/ethereum/market_chart
       </div>
 
       <div style={styles.chartBox}>
-        <canvas ref={chartRef}></canvas>
+        {loading && <div style={styles.loading}>Loading chart…</div>}
+        <canvas ref={canvasRef}></canvas>
       </div>
 
       <div style={styles.buttons}>
-        <RangeButton text="24H" days={1} setRange={setRange} />
-        <RangeButton text="7D" days={7} setRange={setRange} />
-        <RangeButton text="30D" days={30} setRange={setRange} />
+        <Btn label="24H" onClick={() => setDays(1)} />
+        <Btn label="7D" onClick={() => setDays(7)} />
+        <Btn label="30D" onClick={() => setDays(30)} />
       </div>
 
       <p style={styles.note}>
-        Data source: CoinGecko • React Dashboard
+        Data source: CoinGecko • React ETH Dashboard
       </p>
     </div>
   );
 }
 
-// ======================
-// RANGE BUTTON
-// ======================
-function RangeButton({ text, days, setRange }) {
+function Btn({ label, onClick }) {
   return (
-    <button
-      onClick={() => setRange(days)}
-      style={styles.rangeBtn}
-    >
-      {text}
+    <button onClick={onClick} style={styles.btn}>
+      {label}
     </button>
   );
 }
 
-// ======================
+// =========================
 // STYLES
-// ======================
+// =========================
 const styles = {
   page: {
-    maxWidth: "1000px",
+    maxWidth: "1100px",
     margin: "0 auto",
-    padding: "30px"
+    padding: "30px",
+    color: "#e5e7eb",
+    fontFamily: "Arial"
   },
   header: {
     display: "flex",
@@ -144,17 +150,26 @@ const styles = {
     fontWeight: "bold"
   },
   chartBox: {
+    position: "relative",
+    height: "360px",
     background: "#020617",
     padding: "20px",
     borderRadius: "14px",
     boxShadow: "0 0 40px rgba(0,0,0,.4)"
+  },
+  loading: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    opacity: 0.6
   },
   buttons: {
     marginTop: "20px",
     display: "flex",
     gap: "10px"
   },
-  rangeBtn: {
+  btn: {
     padding: "8px 14px",
     background: "#111827",
     color: "#e5e7eb",
@@ -168,7 +183,7 @@ const styles = {
   }
 };
 
-// ======================
+// =========================
 // RENDER
-// ======================
+// =========================
 ReactDOM.createRoot(document.getElementById("root")).render(<App />);
