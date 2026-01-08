@@ -1,32 +1,34 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Ethereum Full Web3 DApp</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <title>Ethereum Web3 DApp</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
 <nav>
-  <h1>Ethereum Web3 DApp</h1>
-  <button id="connect">Connect Wallet</button>
+  <h1>Ethereum Web3</h1>
+  <div>
+    <button id="connectBtn">Connect</button>
+    <button id="logoutBtn" style="display:none;">Logout</button>
+  </div>
 </nav>
 
 <section class="grid">
   <div class="card">
     <h3>Wallet</h3>
     <p id="wallet">-</p>
-    <p id="ens">-</p>
   </div>
 
   <div class="card">
     <h3>ETH Balance</h3>
-    <p id="eth">-</p>
+    <p id="balance">-</p>
   </div>
 
   <div class="card">
-    <h3>Gas Price</h3>
-    <p id="gas">Loading...</p>
+    <h3>Network</h3>
+    <p id="network">-</p>
   </div>
 
   <div class="card">
@@ -35,24 +37,11 @@
   </div>
 </section>
 
-<section>
-  <h2>ERC-20 Token Balance</h2>
-  <input id="token" placeholder="Token contract address">
-  <button onclick="loadToken()">Check</button>
-  <p id="tokenBalance"></p>
-</section>
+<footer>
+  <p>Web3 Frontend • GitHub + Netlify • No Backend</p>
+</footer>
 
-<section>
-  <h2>NFT Gallery</h2>
-  <div id="nfts" class="nft-grid"></div>
-</section>
-
-<script src="web3/provider.js"></script>
-<script src="web3/wallet.js"></script>
-<script src="web3/eth.js"></script>
-<script src="web3/ens.js"></script>
-<script src="web3/erc20.js"></script>
-<script src="web3/nft.js"></script>
+<script src="web3.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
