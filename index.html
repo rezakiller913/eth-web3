@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>React Web3 Dashboard</title>
+  <title>ETH Dashboard</title>
 
   <!-- React -->
   <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
@@ -10,36 +10,25 @@
 
   <!-- Babel -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  
+
   <style>
     body {
       margin: 0;
-      font-family: Arial;
-      background: #020617;
-      color: white;
-      text-align: center;
-      padding-top: 80px;
-    }
-    button {
-      padding: 10px 16px;
-      background: #38bdf8;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
+      background: #0b0f1a;
+      color: #e5e7eb;
+      font-family: Arial, sans-serif;
     }
   </style>
-
-  
-
 </head>
 <body>
 
-<!-- ROOT WAJIB -->
 <div id="root"></div>
 
-<!-- FILE JS WAJIB -->
-<script type="text/babel" src="app.js"></script>
+<!-- cache busting -->
+<script type="text/babel" src="app.js?v=FINAL"></script>
 
 </body>
 </html>
