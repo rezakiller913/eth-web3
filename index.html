@@ -1,34 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>ETH Dashboard</title>
+  <meta charset="UTF-8">
+  <title>ETH Chart Test</title>
 
-  <!-- React -->
-  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-
-  <!-- Babel -->
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
     body {
-      margin: 0;
       background: #0b0f1a;
-      color: #e5e7eb;
-      font-family: Arial, sans-serif;
+      color: white;
+      font-family: Arial;
+      padding: 40px;
+    }
+    canvas {
+      background: #020617;
+      border-radius: 12px;
+      padding: 20px;
     }
   </style>
 </head>
 <body>
 
-<div id="root"></div>
+<h1>Ethereum (ETH) – Chart Test</h1>
+<p>Jika grafik muncul → API & Chart AMAN</p>
 
-<!-- cache busting -->
-<script type="text/babel" src="app.js?v=FINAL"></script>
+<canvas id="ethChart" height="120"></canvas>
+
+<script>
+async function loadChart() {
+  const res = await fetch(
+    "https://api.coingecko.com/api/v3/coins/ethereum/market_chart?vs_currency=usd&days=1"
+  );
+  const data = await res.json();
+
+  const labels = data.prices.map(p =>
+    new Date(p[0]).toLocaleTimeString()
+  );
+  const prices = data.prices.map(p => p[1]);
+
+  new Chart(document.getElementById("ethChart"), {
+    type: "line",
+    data: {
+      labels,
+      datasets: [{
+        data: prices,
+        borderColor: "#ef4444",
+        tension: 0.3,
+        pointRadius: 0
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { display: false },
+        y: { ticks: { color: "#9ca3af" } }
+      }
+    }
+  });
+}
+
+loadChart();
+</script>
 
 </body>
 </html>
