@@ -1,4 +1,4 @@
-async function getBlockNumber() {
+async function getLatestBlock() {
   const res = await fetch("https://eth.llamarpc.com", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
