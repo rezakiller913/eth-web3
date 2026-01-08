@@ -2,60 +2,23 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Web3 Crypto Dashboard</title>
+  <title>React Web3 Dashboard</title>
 
-  <!-- Chart.js CDN -->
+  <!-- React -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+  <!-- Framer Motion -->
+  <script src="https://unpkg.com/framer-motion/dist/framer-motion.umd.js"></script>
+
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<nav>
-  <h1>⚡ Web3 Crypto Dashboard</h1>
-  <div>
-    <button id="connectBtn">Connect</button>
-    <button id="logoutBtn" style="display:none;">Logout</button>
-  </div>
-</nav>
-
-<section class="stats">
-  <div class="stat-card">
-    <span>Wallet</span>
-    <p id="wallet">-</p>
-  </div>
-
-  <div class="stat-card">
-    <span>ETH Balance</span>
-    <p id="balance">-</p>
-  </div>
-
-  <div class="stat-card">
-    <span>Network</span>
-    <p id="network">-</p>
-  </div>
-
-  <div class="stat-card">
-    <span>Latest Block</span>
-    <p id="block">Loading...</p>
-  </div>
-</section>
-
-<section class="charts">
-  <div class="chart-card">
-    <h3>Wallet Balance (Session)</h3>
-    <canvas id="balanceChart"></canvas>
-  </div>
-
-  <div class="chart-card">
-    <h3>ETH Price (USD)</h3>
-    <canvas id="priceChart"></canvas>
-  </div>
-</section>
-
-<footer>
-  <p>Modern Web3 Dashboard • GitHub + Netlify</p>
-</footer>
+<div id="root"></div>
 
 <script src="app.js"></script>
 </body>
