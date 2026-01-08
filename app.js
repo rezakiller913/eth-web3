@@ -1,169 +1,126 @@
 const { useState, useEffect, useRef } = React;
 
-function Dashboard() {
-  const [account, setAccount] = useState(null);
-  const [balance, setBalance] = useState(null);
-  const [network, setNetwork] = useState("-");
-  const priceChartRef = useRef(null);
-  const balanceChartRef = useRef(null);
-  let priceChart, balanceChart;
+function App() {
+  const chartRef = useRef(null);
+  const chartInstance = useRef(null);
+
+  const [price, setPrice] = useState("-");
+  const [change, setChange] = useState("-");
+  const [range, setRange] = useState(1); // days
 
   // ======================
-  // CONNECT WALLET
+  // FETCH DATA
   // ======================
-  async function connectWallet() {
-    if (!window.ethereum) {
-      alert("MetaMask tidak terdeteksi");
-      return;
-    }
+  async function loadChart(days) {
+    const url = `
+https://api.coingecko.com/api/v3/coins/ethereum/market_chart
+?vs_currency=usd&days=${days}&interval=hourly`;
 
-    const accounts = await ethereum.request({
-      method: "eth_requestAccounts"
-    });
-
-    const addr = accounts[0];
-    setAccount(addr);
-
-    const balHex = await ethereum.request({
-      method: "eth_getBalance",
-      params: [addr, "latest"]
-    });
-
-    const ethBalance = parseInt(balHex, 16) / 1e18;
-    setBalance(ethBalance.toFixed(4));
-
-    const chainId = await ethereum.request({
-      method: "eth_chainId"
-    });
-
-    setNetwork(chainId === "0x1" ? "Ethereum Mainnet" : "Testnet");
-
-    updateBalanceChart(ethBalance);
-  }
-
-  // ======================
-  // LOGOUT
-  // ======================
-  function logout() {
-    setAccount(null);
-    setBalance(null);
-    setNetwork("-");
-  }
-
-  // ======================
-  // CHART INIT
-  // ======================
-  useEffect(() => {
-    // ETH PRICE CHART
-    priceChart = new Chart(priceChartRef.current, {
-      type: "line",
-      data: {
-        labels: [],
-        datasets: [{
-          label: "ETH Price (USD)",
-          data: [],
-          borderColor: "#22c55e",
-          tension: 0.4
-        }]
-      }
-    });
-
-    // BALANCE CHART
-    balanceChart = new Chart(balanceChartRef.current, {
-      type: "line",
-      data: {
-        labels: [],
-        datasets: [{
-          label: "Wallet Balance (ETH)",
-          data: [],
-          borderColor: "#38bdf8",
-          tension: 0.4
-        }]
-      }
-    });
-
-    loadPrice(priceChart);
-
-    // cleanup
-    return () => {
-      priceChart.destroy();
-      balanceChart.destroy();
-    };
-  }, []);
-
-  // ======================
-  // UPDATE BALANCE CHART
-  // ======================
-  function updateBalanceChart(value) {
-    const chart = balanceChartRef.current._chart;
-    chart.data.labels.push(new Date().toLocaleTimeString());
-    chart.data.datasets[0].data.push(value);
-    chart.update();
-  }
-
-  // ======================
-  // LOAD ETH PRICE
-  // ======================
-  async function loadPrice(chart) {
-    const res = await fetch(
-      "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd"
-    );
+    const res = await fetch(url);
     const data = await res.json();
 
-    chart.data.labels.push("Now");
-    chart.data.datasets[0].data.push(data.ethereum.usd);
-    chart.update();
+    const prices = data.prices.map(p => p[1]);
+    const labels = data.prices.map(p =>
+      new Date(p[0]).toLocaleTimeString()
+    );
+
+    const first = prices[0];
+    const last = prices[prices.length - 1];
+    const changePct = (((last - first) / first) * 100).toFixed(2);
+
+    setPrice(`$${last.toFixed(2)}`);
+    setChange(changePct);
+
+    drawChart(labels, prices);
   }
+
+  // ======================
+  // DRAW CHART
+  // ======================
+  function drawChart(labels, prices) {
+    if (chartInstance.current) {
+      chartInstance.current.destroy();
+    }
+
+    chartInstance.current = new Chart(chartRef.current, {
+      type: "line",
+      data: {
+        labels,
+        datasets: [{
+          data: prices,
+          borderColor: "#ef4444",
+          borderWidth: 2,
+          pointRadius: 0,
+          tension: 0.35,
+          fill: true,
+          backgroundColor: "rgba(239,68,68,0.1)"
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          x: { display: false },
+          y: {
+            ticks: { color: "#9ca3af" },
+            grid: { color: "#1f2937" }
+          }
+        }
+      }
+    });
+  }
+
+  useEffect(() => {
+    loadChart(range);
+  }, [range]);
 
   // ======================
   // UI
   // ======================
   return (
     <div style={styles.page}>
-      <h1 style={styles.title}>⚡ Web3 Crypto Dashboard</h1>
-
-      <div style={styles.actions}>
-        {!account ? (
-          <button style={styles.btn} onClick={connectWallet}>
-            Connect Wallet
-          </button>
-        ) : (
-          <button style={styles.btnDanger} onClick={logout}>
-            Logout
-          </button>
-        )}
-      </div>
-
-      <div style={styles.grid}>
-        <Card title="Wallet" value={account || "-"} />
-        <Card title="ETH Balance" value={balance ? balance + " ETH" : "-"} />
-        <Card title="Network" value={network} />
-      </div>
-
-      <div style={styles.charts}>
-        <div style={styles.chartBox}>
-          <h3>ETH Price</h3>
-          <canvas ref={priceChartRef}></canvas>
-        </div>
-
-        <div style={styles.chartBox}>
-          <h3>Wallet Balance</h3>
-          <canvas ref={balanceChartRef}></canvas>
+      <div style={styles.header}>
+        <h1>Ethereum (ETH)</h1>
+        <div>
+          <div style={styles.price}>{price}</div>
+          <div style={{
+            color: change > 0 ? "#22c55e" : "#ef4444"
+          }}>
+            {change}% (24h)
+          </div>
         </div>
       </div>
+
+      <div style={styles.chartBox}>
+        <canvas ref={chartRef}></canvas>
+      </div>
+
+      <div style={styles.buttons}>
+        <RangeButton text="24H" days={1} setRange={setRange} />
+        <RangeButton text="7D" days={7} setRange={setRange} />
+        <RangeButton text="30D" days={30} setRange={setRange} />
+      </div>
+
+      <p style={styles.note}>
+        Data source: CoinGecko • React Dashboard
+      </p>
     </div>
   );
 }
 
 // ======================
-// CARD COMPONENT
+// RANGE BUTTON
 // ======================
-function Card({ title, value }) {
+function RangeButton({ text, days, setRange }) {
   return (
-    <div style={styles.card}>
-      <span style={styles.cardTitle}>{title}</span>
-      <p style={styles.cardValue}>{value}</p>
-    </div>
+    <button
+      onClick={() => setRange(days)}
+      style={styles.rangeBtn}
+    >
+      {text}
+    </button>
   );
 }
 
@@ -172,72 +129,46 @@ function Card({ title, value }) {
 // ======================
 const styles = {
   page: {
-    minHeight: "100vh",
-    background: "radial-gradient(circle at top, #0f172a, #020617)",
-    color: "#e5e7eb",
-    padding: "40px",
-    fontFamily: "Arial"
+    maxWidth: "1000px",
+    margin: "0 auto",
+    padding: "30px"
   },
-  title: {
-    textAlign: "center",
-    marginBottom: "30px",
-    color: "#38bdf8"
+  header: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "20px"
   },
-  actions: {
-    textAlign: "center",
-    marginBottom: "30px"
-  },
-  btn: {
-    padding: "12px 20px",
-    background: "#38bdf8",
-    border: "none",
-    borderRadius: "8px",
-    cursor: "pointer",
+  price: {
+    fontSize: "32px",
     fontWeight: "bold"
   },
-  btnDanger: {
-    padding: "12px 20px",
-    background: "#ef4444",
-    border: "none",
-    borderRadius: "8px",
-    cursor: "pointer",
-    fontWeight: "bold",
-    color: "white"
-  },
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-    gap: "20px",
-    marginBottom: "40px"
-  },
-  card: {
-    background: "rgba(2,6,23,.7)",
+  chartBox: {
+    background: "#020617",
     padding: "20px",
     borderRadius: "14px",
-    boxShadow: "0 0 25px rgba(56,189,248,.15)"
+    boxShadow: "0 0 40px rgba(0,0,0,.4)"
   },
-  cardTitle: {
-    fontSize: "0.9rem",
-    opacity: 0.7
+  buttons: {
+    marginTop: "20px",
+    display: "flex",
+    gap: "10px"
   },
-  cardValue: {
-    marginTop: "10px",
-    wordBreak: "break-all"
+  rangeBtn: {
+    padding: "8px 14px",
+    background: "#111827",
+    color: "#e5e7eb",
+    border: "1px solid #1f2937",
+    borderRadius: "6px",
+    cursor: "pointer"
   },
-  charts: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-    gap: "30px"
-  },
-  chartBox: {
-    background: "rgba(2,6,23,.7)",
-    padding: "20px",
-    borderRadius: "16px"
+  note: {
+    marginTop: "20px",
+    opacity: 0.6
   }
 };
 
 // ======================
 // RENDER
 // ======================
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(<Dashboard />);
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
