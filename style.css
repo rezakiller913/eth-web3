@@ -1,6 +1,6 @@
 body {
   margin: 0;
-  font-family: system-ui, Arial;
+  font-family: system-ui;
   background: radial-gradient(circle at top, #0f172a, #020617);
   color: #e5e7eb;
 }
@@ -9,67 +9,12 @@ nav {
   padding: 16px 24px;
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  background: rgba(2, 6, 23, 0.8);
+  background: rgba(2,6,23,.8);
   backdrop-filter: blur(10px);
 }
 
-button {
-  background: linear-gradient(135deg, #38bdf8, #6366f1);
-  border: none;
-  padding: 10px 16px;
-  border-radius: 10px;
-  cursor: pointer;
-  color: #fff;
-  font-weight: 600;
-  margin-left: 8px;
-}
-
-.stats {
-  max-width: 1100px;
-  margin: 40px auto;
-  padding: 0 20px;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
-}
-
-.stat-card {
-  background: rgba(2, 6, 23, 0.7);
+.card {
+  background: rgba(2,6,23,.7);
   border-radius: 16px;
   padding: 20px;
-  backdrop-filter: blur(12px);
-}
-
-.stat-card span {
-  color: #94a3b8;
-  font-size: 0.9rem;
-}
-
-.stat-card p {
-  margin-top: 10px;
-  font-size: 1.1rem;
-  word-break: break-all;
-}
-
-.charts {
-  max-width: 1100px;
-  margin: 20px auto 60px;
-  padding: 0 20px;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 30px;
-}
-
-.chart-card {
-  background: rgba(2, 6, 23, 0.7);
-  border-radius: 20px;
-  padding: 20px;
-  backdrop-filter: blur(12px);
-}
-
-footer {
-  text-align: center;
-  padding: 30px;
-  background: rgba(2, 6, 23, 0.8);
 }
