@@ -2,42 +2,124 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>ETH Chart Test</title>
+  <title>Ethereum (ETH) Dashboard</title>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
-    body {
-      background: #0b0f1a;
-      color: white;
-      font-family: Arial;
-      padding: 40px;
+    :root {
+      --bg: #0b0f1a;
+      --card: #020617;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --red: #ef4444;
+      --green: #22c55e;
     }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top, #111827, var(--bg));
+      font-family: Inter, Arial, sans-serif;
+      color: var(--text);
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .title {
+      font-size: 28px;
+      font-weight: 600;
+    }
+
+    .price-box {
+      text-align: right;
+    }
+
+    .price {
+      font-size: 34px;
+      font-weight: bold;
+    }
+
+    .change {
+      font-size: 14px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.5);
+    }
+
     canvas {
-      background: #020617;
-      border-radius: 12px;
-      padding: 20px;
+      width: 100% !important;
+      height: 420px !important;
+    }
+
+    .footer {
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--muted);
+      text-align: right;
     }
   </style>
 </head>
 <body>
 
-<h1>Ethereum (ETH) – Chart Test</h1>
-<p>Jika grafik muncul → API & Chart AMAN</p>
+<div class="container">
+  <div class="header">
+    <div class="title">Ethereum (ETH)</div>
 
-<canvas id="ethChart" height="120"></canvas>
+    <div class="price-box">
+      <div class="price" id="price">$–</div>
+      <div class="change" id="change">–</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <canvas id="ethChart"></canvas>
+  </div>
+
+  <div class="footer">
+    Data source: CryptoCompare
+  </div>
+</div>
 
 <script>
 async function loadChart() {
   const res = await fetch(
-    "https://api.coingecko.com/api/v3/coins/ethereum/market_chart?vs_currency=usd&days=1"
+    "https://min-api.cryptocompare.com/data/v2/histohour?fsym=ETH&tsym=USD&limit=100"
   );
-  const data = await res.json();
+  const json = await res.json();
+  const data = json.Data.Data;
 
-  const labels = data.prices.map(p =>
-    new Date(p[0]).toLocaleTimeString()
+  const prices = data.map(d => d.close);
+  const labels = data.map(d =>
+    new Date(d.time * 1000).toLocaleTimeString()
   );
-  const prices = data.prices.map(p => p[1]);
+
+  const first = prices[0];
+  const last = prices[prices.length - 1];
+  const changePct = (((last - first) / first) * 100).toFixed(2);
+
+  document.getElementById("price").innerText = `$${last.toFixed(2)}`;
+  const changeEl = document.getElementById("change");
+  changeEl.innerText = `${changePct}% (24h)`;
+  changeEl.style.color = changePct >= 0 ? "#22c55e" : "#ef4444";
 
   new Chart(document.getElementById("ethChart"), {
     type: "line",
@@ -46,15 +128,21 @@ async function loadChart() {
       datasets: [{
         data: prices,
         borderColor: "#ef4444",
-        tension: 0.3,
-        pointRadius: 0
+        backgroundColor: "rgba(239,68,68,.15)",
+        borderWidth: 2,
+        tension: 0.35,
+        pointRadius: 0,
+        fill: true
       }]
     },
     options: {
       plugins: { legend: { display: false } },
       scales: {
         x: { display: false },
-        y: { ticks: { color: "#9ca3af" } }
+        y: {
+          ticks: { color: "#9ca3af" },
+          grid: { color: "#1f2937" }
+        }
       }
     }
   });
