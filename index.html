@@ -2,46 +2,61 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Ethereum Web3 DApp</title>
+  <title>Web3 Crypto Dashboard</title>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
 <nav>
-  <h1>Ethereum Web3</h1>
+  <h1>⚡ Web3 Crypto Dashboard</h1>
   <div>
     <button id="connectBtn">Connect</button>
     <button id="logoutBtn" style="display:none;">Logout</button>
   </div>
 </nav>
 
-<section class="grid">
-  <div class="card">
-    <h3>Wallet</h3>
+<section class="stats">
+  <div class="stat-card">
+    <span>Wallet</span>
     <p id="wallet">-</p>
   </div>
 
-  <div class="card">
-    <h3>ETH Balance</h3>
+  <div class="stat-card">
+    <span>ETH Balance</span>
     <p id="balance">-</p>
   </div>
 
-  <div class="card">
-    <h3>Network</h3>
+  <div class="stat-card">
+    <span>Network</span>
     <p id="network">-</p>
   </div>
 
-  <div class="card">
-    <h3>Latest Block</h3>
+  <div class="stat-card">
+    <span>Latest Block</span>
     <p id="block">Loading...</p>
   </div>
 </section>
 
+<section class="charts">
+  <div class="chart-card">
+    <h3>Wallet Balance (Session)</h3>
+    <canvas id="balanceChart"></canvas>
+  </div>
+
+  <div class="chart-card">
+    <h3>ETH Price (USD)</h3>
+    <canvas id="priceChart"></canvas>
+  </div>
+</section>
+
 <footer>
-  <p>Web3 Frontend • GitHub + Netlify • No Backend</p>
+  <p>Modern Web3 Dashboard • GitHub + Netlify</p>
 </footer>
 
-<script src="web3.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
