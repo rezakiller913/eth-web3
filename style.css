@@ -1,0 +1,49 @@
+body {
+  margin: 0;
+  font-family: system-ui;
+  background: #0f172a;
+  color: #e5e7eb;
+}
+
+nav {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+  background: #020617;
+}
+
+button {
+  background: #38bdf8;
+  border: none;
+  padding: 10px 16px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.hero {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+}
+
+.card {
+  background: #020617;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+footer {
+  text-align: center;
+  padding: 30px;
+  margin-top: 40px;
+  background: #020617;
+}
